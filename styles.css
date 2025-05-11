@@ -1,0 +1,217 @@
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.main-card {
+  width: 95%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #3f51b5;
+}
+
+.highlight {
+  font-weight: bold;
+  color: #4CAF50; /* 방어자 색상과 일치하는 초록색 */
+}
+
+.subtitle {
+  font-size: 20px; /* 이전보다 크기 증가 */
+  text-align: center;
+  margin: 15px 0;
+  padding: 10px;
+  color: #333;
+}
+
+.role-selector {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.role-card {
+  width: 220px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+}
+
+.role-card.selected {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.role-card[data-role="피해자"] {
+  background-color: #F44336;
+}
+
+.role-card[data-role="방관자"] {
+  background-color: #FF9800;
+}
+
+.role-card[data-role="가해자"] {
+  background-color: #673AB7;
+}
+
+.role-card[data-role="방어자"] {
+  background-color: #4CAF50;
+}
+
+.questions-container {
+  display: none;
+}
+
+.questions-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.questions-column {
+  flex: 1;
+}
+
+.question-list {
+  margin-top: 20px;
+}
+
+.question-item {
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.question-item:hover {
+  background-color: #e0e0e0;
+}
+
+.question-item.selected {
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196F3;
+}
+
+.selected-questions {
+  margin-top: 20px;
+}
+
+.selected-question-list {
+  background-color: #e8f5e9;
+  padding: 15px;
+  border-radius: 8px;
+  min-height: 50px;
+}
+
+.selected-item {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.selected-item i {
+  margin-right: 8px;
+  color: #F44336;
+  cursor: pointer;
+}
+
+.help-text {
+  text-align: center;
+  margin: 30px 0;
+  color: #666;
+}
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 20px;
+  background-color: #323232;
+  color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  z-index: 1000;
+  display: none;
+}
+
+.button-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+@media print {
+  body {
+    background-color: white;
+  }
+  .main-card {
+    box-shadow: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  .role-selector, .questions-wrapper, .button-container, #help-text {
+    display: none !important;
+  }
+  .print-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .print-questions li {
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .role-selector {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .role-card {
+    width: 80%;
+  }
+  
+  .questions-wrapper {
+    flex-direction: column;
+  }
+  
+  .button-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .button-container button {
+    width: 80%;
+  }
+}
