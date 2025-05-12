@@ -422,12 +422,7 @@ function generatePrintContent() {
 
 // PDF 생성 함수 (HTML2Canvas와 jsPDF 사용)
 async function generatePDF() {
-  if (!selectedRole) {
-    showNotification('먼저 역할을 선택해주세요.', true);
-    return;
-  }
-
-  showNotification('PDF 생성 중입니다... 잠시 기다려주세요.');
+  showNotification('모든 역할의 질문이 포함된 PDF를 생성 중입니다... 잠시 기다려주세요.');
 
   try {
     // Noto Sans KR 폰트가 로드될 때까지 기다립니다.
@@ -445,7 +440,7 @@ async function generatePDF() {
     tempContainer.style.fontSize = "16px";
     tempContainer.style.lineHeight = "1.6";
 
-    // PDF에 포함될 HTML 내용 생성
+    // PDF에 포함될 HTML 내용 생성 - 모든 역할 포함
     tempContainer.innerHTML = generateQuestionsHTMLForPDF();
     document.body.appendChild(tempContainer);
 
@@ -485,7 +480,7 @@ async function generatePDF() {
       heightLeft -= pageHeight;
     }
 
-    pdf.save(`${selectedRole}_인터뷰_질문_${new Date().toISOString().slice(0,10)}.pdf`);
+    pdf.save(`방어자상담소_인터뷰_질문_모음_${new Date().toISOString().slice(0,10)}.pdf`);
     showNotification('PDF 파일이 생성되었습니다.');
 
   } catch (error) {
@@ -498,24 +493,48 @@ async function generatePDF() {
   }
 }
 
-// PDF 생성용 HTML을 별도로 생성하는 함수
+// PDF 생성용 HTML을 별도로 생성하는 함수 - 모든 역할 포함
 function generateQuestionsHTMLForPDF() {
-  const questions = roleSelectedQuestions[selectedRole] || [];
   const today = new Date().toLocaleDateString();
-
+  
+  // 모든 역할의 선택된 질문을 가져옴
+  const roles = ["피해자", "방관자", "가해자", "방어자"];
+  
   let html = `<div style="font-family: 'Noto Sans KR', sans-serif;">`;
-  html += `<h1 style="color: #3f51b5; font-size: 24px; margin-bottom: 20px; font-weight: 700;">${selectedRole} 역할을 위한 인터뷰 질문</h1>`;
-  html += `<p style="font-size: 14px; margin-bottom: 20px;">생성 날짜: ${today}</p>`;
+  html += `<h1 style="color: #3f51b5; font-size: 28px; margin-bottom: 20px; font-weight: 700; text-align: center;">방어자 상담소 인터뷰 질문 모음</h1>`;
+  html += `<p style="font-size: 14px; margin-bottom: 30px; text-align: center;">생성 날짜: ${today}</p>`;
 
-  if (questions.length === 0) {
-    html += '<p style="font-size: 16px; color: #666;">선택된 질문이 없습니다.</p>';
-  } else {
-    html += '<ul style="padding-left: 20px; list-style-type: disc; margin-top: 20px;">';
-    questions.forEach((question) => {
-      html += `<li style="margin-bottom: 10px; font-size: 16px;">${question}</li>`;
-    });
-    html += '</ul>';
+  // 각 역할별로 섹션 생성
+  for (const role of roles) {
+    const questions = roleSelectedQuestions[role] || [];
+    const roleColors = {
+      "피해자": "#F44336",
+      "방관자": "#FF9800",
+      "가해자": "#673AB7",
+      "방어자": "#4CAF50"
+    };
+    
+    html += `<div style="margin-top: 30px; margin-bottom: 20px; page-break-inside: avoid;">`;
+    html += `<h2 style="color: ${roleColors[role]}; font-size: 22px; margin-bottom: 15px; font-weight: 600; padding-bottom: 5px; border-bottom: 2px solid ${roleColors[role]};">${role} 역할의 질문</h2>`;
+    
+    if (questions.length === 0) {
+      html += '<p style="font-size: 16px; color: #666; margin-left: 10px;">선택된 질문이 없습니다.</p>';
+    } else {
+      html += '<ul style="padding-left: 20px; list-style-type: disc; margin-top: 10px;">';
+      questions.forEach((question) => {
+        html += `<li style="margin-bottom: 10px; font-size: 16px;">${question}</li>`;
+      });
+      html += '</ul>';
+    }
+    
+    html += '</div>';
+    
+    // 마지막 역할이 아니면 페이지 나누기 추가 (선택적)
+    if (role !== "방어자") {
+      html += '<div style="page-break-after: always;"></div>';
+    }
   }
+  
   html += '</div>';
   return html;
 }
