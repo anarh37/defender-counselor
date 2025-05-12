@@ -179,14 +179,7 @@ function displayQuestions(role) {
   for (let categoryIndex = 0; categoryIndex < questionsData.length; categoryIndex++) {
     const categoryQuestions = questionsData[categoryIndex];
     
-    // 카테고리 헤더 추가 (선택사항)
-    const categoryHeader = document.createElement('div');
-    categoryHeader.className = 'category-header';
-    categoryHeader.textContent = `질문 그룹 ${categoryIndex + 1}`;
-    categoryHeader.style.fontWeight = 'bold';
-    categoryHeader.style.margin = '15px 0 5px 0';
-    categoryHeader.style.color = '#3f51b5';
-    questionsList.appendChild(categoryHeader);
+    // 카테고리 헤더 제거 - 이 부분을 삭제했습니다
     
     // 각 질문 항목 생성
     for (let i = 0; i < categoryQuestions.length; i++) {
