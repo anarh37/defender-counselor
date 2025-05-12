@@ -135,8 +135,29 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('printBtn').addEventListener('click', prepareAndPrint);
   document.getElementById('pdfBtn').addEventListener('click', generatePDF);
 
+  // 질문 그룹 헤더 제거
+  function removeQuestionGroupHeaders() {
+    // 모든 '질문 그룹' 관련 요소 삭제
+    document.querySelectorAll('[id^="질문 그룹"], [class^="질문 그룹"]').forEach(el => {
+      el.remove();
+    });
+    
+    // '질문 그룹' 텍스트를 포함하는 요소 찾아서 삭제
+    document.querySelectorAll('div').forEach(el => {
+      if (el.textContent && (el.textContent.includes('질문 그룹') || el.textContent.includes('질문그룹'))) {
+        if (el.textContent.trim() === '질문 그룹 1' || el.textContent.trim() === '질문 그룹 2' || 
+            el.textContent.trim() === '질문그룹 1' || el.textContent.trim() === '질문그룹 2') {
+          el.remove();
+        }
+      }
+    });
+  }
+  
   // 저장된 데이터가 있는지 확인하고 불러오기
   loadSavedQuestions(false); // 알림 표시하지 않음
+  
+  // 질문 그룹 헤더 제거 실행
+  removeQuestionGroupHeaders();
 });
 
 // 역할 선택 함수
@@ -157,9 +178,14 @@ function selectRole(role) {
   document.getElementById('role-title').textContent = `${role} 역할의 질문 목록`;
 
   updateSelectedQuestionsUI();
+  
+  // 역할 선택 후 질문 그룹 헤더 제거
+  document.querySelectorAll('[id^="질문 그룹"], [class^="질문 그룹"]').forEach(el => {
+    el.remove();
+  });
 }
 
-// 질문 표시 함수 - 완전히 새로 작성된 버전
+// 질문 표시 함수 - 수정된 버전
 function displayQuestions(role) {
   console.log('질문 표시 함수 호출됨:', role);
 
@@ -187,15 +213,19 @@ function displayQuestions(role) {
       const questionItem = document.createElement('div');
       questionItem.className = 'question-item';
       questionItem.textContent = question;
-      questionItem.dataset.question = question;
-
+      questionItem.dataset.question = question; // 데이터 속성 설정
+      
+      // 이미 선택된 질문인지 확인
       if (roleSelectedQuestions[role] && roleSelectedQuestions[role].includes(question)) {
         questionItem.classList.add('selected');
       }
 
-      questionItem.addEventListener('click', function() {
+      // 이벤트 리스너 추가 - 수정된 부분: stopPropagation 추가
+      questionItem.addEventListener('click', function(e) {
+        e.stopPropagation(); // 이벤트 버블링 방지
         toggleQuestionSelection(this);
       });
+      
       questionsList.appendChild(questionItem);
     }
   }
@@ -208,14 +238,59 @@ function displayQuestions(role) {
     noQuestions.textContent = '이 역할에 대한 질문이 없습니다.';
     questionsList.appendChild(noQuestions);
   }
+  
+  // 질문 그룹 헤더 요소 제거
+  document.querySelectorAll('[id^="질문 그룹"], [class^="질문 그룹"]').forEach(el => {
+    el.remove();
+  });
 }
 
-// 선택된 질문 UI 업데이트
+// 질문 선택 토글 함수 - 수정된 버전
+function toggleQuestionSelection(questionElement) {
+  // 디버깅을 위한 로그 추가
+  console.log('toggleQuestionSelection 호출됨', questionElement);
+  
+  const question = questionElement.dataset.question;
+  console.log('선택된 질문:', question);
+
+  if (!roleSelectedQuestions[selectedRole]) {
+    roleSelectedQuestions[selectedRole] = [];
+  }
+
+  // classList.toggle 사용으로 단순화
+  const isSelected = questionElement.classList.toggle('selected');
+  console.log('선택 상태 변경:', isSelected);
+  
+  if (isSelected) {
+    // 선택된 상태로 변경
+    if (!roleSelectedQuestions[selectedRole].includes(question)) {
+      roleSelectedQuestions[selectedRole].push(question);
+      console.log('질문 추가됨:', question);
+    }
+  } else {
+    // 선택 해제된 상태로 변경
+    const index = roleSelectedQuestions[selectedRole].indexOf(question);
+    if (index > -1) {
+      roleSelectedQuestions[selectedRole].splice(index, 1);
+      console.log('질문 제거됨:', question);
+    }
+  }
+  
+  // UI 업데이트
+  updateSelectedQuestionsUI();
+  
+  // 디버깅: 현재 선택된 질문 목록 출력
+  console.log('현재 선택된 질문들:', roleSelectedQuestions[selectedRole]);
+}
+
+// 선택된 질문 UI 업데이트 - 디버깅 로그 추가
 function updateSelectedQuestionsUI() {
   const selectedList = document.getElementById('selected-question-list');
   const selectedCount = document.getElementById('selected-count');
   const currentRoleQuestions = roleSelectedQuestions[selectedRole] || [];
 
+  console.log('updateSelectedQuestionsUI 호출됨, 선택된 질문 수:', currentRoleQuestions.length);
+  
   selectedCount.textContent = currentRoleQuestions.length;
   selectedList.innerHTML = '';
 
@@ -233,7 +308,8 @@ function updateSelectedQuestionsUI() {
       const removeIcon = document.createElement('i');
       removeIcon.className = 'material-icons';
       removeIcon.textContent = 'close';
-      removeIcon.addEventListener('click', function() {
+      removeIcon.addEventListener('click', function(e) {
+        e.stopPropagation(); // 이벤트 버블링 방지
         removeSelectedQuestion(question);
       });
 
