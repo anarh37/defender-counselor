@@ -132,7 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // 버튼 이벤트 리스너 등록
   document.getElementById('saveBtn').addEventListener('click', saveSelectedQuestions);
   document.getElementById('loadBtn').addEventListener('click', loadSavedQuestions);
-  // document.getElementById('exportBtn').addEventListener('click', exportQuestionsAsJSON); // JSON 내보내기 삭제
   document.getElementById('printBtn').addEventListener('click', prepareAndPrint);
   document.getElementById('pdfBtn').addEventListener('click', generatePDF);
 
@@ -160,12 +159,12 @@ function selectRole(role) {
   updateSelectedQuestionsUI();
 }
 
-// 질문 표시 함수
+// 질문 표시 함수 - 수정된 버전
 function displayQuestions(role) {
   console.log('질문 표시 함수 호출됨:', role);
 
   const questionsData = allQuestions[role];
-  if (!questionsData) {
+  if (!questionsData || !Array.isArray(questionsData)) {
     showNotification('선택한 역할에 대한 질문이 없습니다.', true);
     return;
   }
@@ -176,34 +175,39 @@ function displayQuestions(role) {
 
   let allQuestionsArray = [];
 
-  Object.keys(questionsData).forEach(categoryIndex => { // category 를 categoryIndex로 변경하여 명확성 증대
-    if (Array.isArray(questionsData[categoryIndex])) {
-      // 카테고리 헤더를 원하시면 여기에 추가할 수 있습니다. 예:
-      // const categoryHeader = document.createElement('div');
-      // categoryHeader.className = 'category-header';
-      // categoryHeader.textContent = `질문 그룹 ${parseInt(categoryIndex) + 1}`;
-      // questionsList.appendChild(categoryHeader);
+  // questionsData는 배열의 배열이므로 인덱스로 순회해야 함
+  for (let categoryIndex = 0; categoryIndex < questionsData.length; categoryIndex++) {
+    const categoryQuestions = questionsData[categoryIndex];
+    
+    // 카테고리 헤더 추가 (선택사항)
+    const categoryHeader = document.createElement('div');
+    categoryHeader.className = 'category-header';
+    categoryHeader.textContent = `질문 그룹 ${categoryIndex + 1}`;
+    categoryHeader.style.fontWeight = 'bold';
+    categoryHeader.style.margin = '15px 0 5px 0';
+    categoryHeader.style.color = '#3f51b5';
+    questionsList.appendChild(categoryHeader);
+    
+    // 각 질문 항목 생성
+    for (let i = 0; i < categoryQuestions.length; i++) {
+      const question = categoryQuestions[i];
+      allQuestionsArray.push(question);
 
-      questionsData[categoryIndex].forEach(question => {
-        allQuestionsArray.push(question);
+      const questionItem = document.createElement('div');
+      questionItem.className = 'question-item';
+      questionItem.textContent = question;
+      questionItem.dataset.question = question;
 
-        const questionItem = document.createElement('div');
-        questionItem.className = 'question-item';
-        questionItem.textContent = question;
-        questionItem.dataset.question = question;
-        // questionItem.dataset.category = categoryIndex; // 카테고리 정보가 필요하다면 사용
+      if (roleSelectedQuestions[role] && roleSelectedQuestions[role].includes(question)) {
+        questionItem.classList.add('selected');
+      }
 
-        if (roleSelectedQuestions[role] && roleSelectedQuestions[role].includes(question)) {
-          questionItem.classList.add('selected');
-        }
-
-        questionItem.addEventListener('click', function() {
-          toggleQuestionSelection(this);
-        });
-        questionsList.appendChild(questionItem);
+      questionItem.addEventListener('click', function() {
+        toggleQuestionSelection(this);
       });
+      questionsList.appendChild(questionItem);
     }
-  });
+  }
 
   console.log('모든 질문:', allQuestionsArray);
 
@@ -219,7 +223,7 @@ function displayQuestions(role) {
 function toggleQuestionSelection(questionElement) {
   const question = questionElement.dataset.question;
 
-  if (!roleSelectedQuestions[selectedRole]) { // 혹시 해당 역할의 배열이 초기화되지 않았다면
+  if (!roleSelectedQuestions[selectedRole]) {
       roleSelectedQuestions[selectedRole] = [];
   }
 
@@ -242,7 +246,7 @@ function toggleQuestionSelection(questionElement) {
 function updateSelectedQuestionsUI() {
   const selectedList = document.getElementById('selected-question-list');
   const selectedCount = document.getElementById('selected-count');
-  const currentRoleQuestions = roleSelectedQuestions[selectedRole] || []; // 현재 역할의 질문이 없으면 빈 배열
+  const currentRoleQuestions = roleSelectedQuestions[selectedRole] || [];
 
   selectedCount.textContent = currentRoleQuestions.length;
   selectedList.innerHTML = '';
@@ -296,7 +300,7 @@ function removeSelectedQuestion(question) {
 function showNotification(message, isError = false) {
   const notification = document.getElementById('notification');
   notification.textContent = message;
-  notification.style.backgroundColor = isError ? '#F44336' : '#323232'; // Red for error, dark grey for info
+  notification.style.backgroundColor = isError ? '#F44336' : '#323232';
   notification.style.display = 'block';
 
   setTimeout(() => {
@@ -331,16 +335,13 @@ function loadSavedQuestions(showAlert = true) {
         showNotification('저장된 질문을 불러왔습니다.');
       }
 
-      if (savedRole && allQuestions[savedRole]) { // 저장된 역할이 유효한 경우에만 선택
+      if (savedRole && allQuestions[savedRole]) {
         selectRole(savedRole);
-      } else if (Object.keys(allQuestions).length > 0) {
-        // 저장된 역할이 없거나 유효하지 않으면, 첫 번째 역할을 기본으로 선택 (선택사항)
-        // selectRole(Object.keys(allQuestions)[0]);
       }
       return true;
     } else {
       if (showAlert) {
-        // showNotification('저장된 질문이 없습니다.', true); // 초기 로드 시에는 알림 불필요
+        // showNotification('저장된 질문이 없습니다.', true);
       }
       return false;
     }
@@ -352,9 +353,6 @@ function loadSavedQuestions(showAlert = true) {
     return false;
   }
 }
-
-// JSON으로 내보내기 기능 삭제됨
-// function exportQuestionsAsJSON() { ... }
 
 // 인쇄 준비 및 실행 함수
 function prepareAndPrint() {
@@ -380,7 +378,6 @@ function prepareAndPrint() {
 
     document.getElementById('saveBtn').addEventListener('click', saveSelectedQuestions);
     document.getElementById('loadBtn').addEventListener('click', loadSavedQuestions);
-    // document.getElementById('exportBtn').addEventListener('click', exportQuestionsAsJSON); // 삭제됨
     document.getElementById('printBtn').addEventListener('click', prepareAndPrint);
     document.getElementById('pdfBtn').addEventListener('click', generatePDF);
 
@@ -391,8 +388,8 @@ function prepareAndPrint() {
       document.getElementById('questions-container').style.display = 'block';
       document.getElementById('help-text').style.display = 'none';
       document.getElementById('role-title').textContent = `${selectedRole} 역할의 질문 목록`;
-      updateSelectedQuestionsUI(); // UI 복원 후 선택된 질문 목록 다시 표시
-      displayQuestions(selectedRole); // 질문 목록도 다시 표시하여 선택 상태 반영
+      updateSelectedQuestionsUI();
+      displayQuestions(selectedRole);
     }
   }, 500);
 }
@@ -423,8 +420,7 @@ function generatePrintContent() {
   return content;
 }
 
-
-// PDF 생성 함수 (HTML2Canvas와 jsPDF 사용) - 한글 폰트 처리 개선
+// PDF 생성 함수 (HTML2Canvas와 jsPDF 사용)
 async function generatePDF() {
   if (!selectedRole) {
     showNotification('먼저 역할을 선택해주세요.', true);
@@ -440,42 +436,41 @@ async function generatePDF() {
     const tempContainer = document.createElement('div');
     // PDF 렌더링을 위한 스타일 설정
     tempContainer.style.position = 'absolute';
-    tempContainer.style.left = '-9999px'; // 화면에 보이지 않도록 처리
+    tempContainer.style.left = '-9999px';
     tempContainer.style.top = '0';
-    tempContainer.style.width = '800px'; // A4 비율과 유사한 너비로 설정 (조정 가능)
+    tempContainer.style.width = '800px';
     tempContainer.style.padding = '20px';
-    tempContainer.style.backgroundColor = 'white'; // 배경색 지정 (캔버스에 영향)
-    tempContainer.style.fontFamily = "'Noto Sans KR', sans-serif"; // 핵심: 폰트 지정
-    tempContainer.style.fontSize = "16px"; // 기본 폰트 크기
-    tempContainer.style.lineHeight = "1.6"; // 줄 간격
+    tempContainer.style.backgroundColor = 'white';
+    tempContainer.style.fontFamily = "'Noto Sans KR', sans-serif";
+    tempContainer.style.fontSize = "16px";
+    tempContainer.style.lineHeight = "1.6";
 
-    // PDF에 포함될 HTML 내용 생성 (generateQuestionsHTMLForPDF 함수 사용)
+    // PDF에 포함될 HTML 내용 생성
     tempContainer.innerHTML = generateQuestionsHTMLForPDF();
     document.body.appendChild(tempContainer);
 
     // html2canvas 옵션 설정
     const canvas = await html2canvas(tempContainer, {
-      scale: 2, // 고해상도 캡처
-      useCORS: true, // CORS 이미지 허용
-      logging: false, // 디버깅 로그 비활성화
-      backgroundColor: '#ffffff', // 명시적으로 배경색 지정
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
       onclone: (clonedDoc) => {
-        // 복제된 문서에 스타일을 한 번 더 적용하여 안정성 확보
-        const contentRoot = clonedDoc.querySelector('div'); // 가장 바깥쪽 div
+        const contentRoot = clonedDoc.querySelector('div');
         if (contentRoot) {
             contentRoot.style.fontFamily = "'Noto Sans KR', sans-serif";
         }
       }
     });
 
-    document.body.removeChild(tempContainer); // 임시 컨테이너 제거
+    document.body.removeChild(tempContainer);
 
     const imgData = canvas.toDataURL('image/png');
-    const { jsPDF } = window.jspdf; // window.jspdf에서 jsPDF 객체 가져오기
-    const pdf = new jsPDF('p', 'mm', 'a4'); // A4 용지, 세로 방향
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
 
-    const imgWidth = 210; // A4 너비 (mm)
-    const pageHeight = 297; // A4 높이 (mm)
+    const imgWidth = 210;
+    const pageHeight = 297;
     const imgHeight = canvas.height * imgWidth / canvas.width;
     let heightLeft = imgHeight;
     let position = 0;
@@ -484,7 +479,7 @@ async function generatePDF() {
     heightLeft -= pageHeight;
 
     while (heightLeft > 0) {
-      position = heightLeft - imgHeight; // 음수 값으로 다음 페이지의 이미지 시작점 설정
+      position = heightLeft - imgHeight;
       pdf.addPage();
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
@@ -496,7 +491,6 @@ async function generatePDF() {
   } catch (error) {
     console.error('PDF 생성 오류:', error);
     showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, true);
-    // 오류 발생 시 임시 컨테이너가 남아있을 수 있으므로 한 번 더 확인 후 제거
     const strayContainer = document.querySelector('div[style*="left: -9999px"]');
     if (strayContainer) {
         document.body.removeChild(strayContainer);
@@ -504,12 +498,12 @@ async function generatePDF() {
   }
 }
 
-// PDF 생성용 HTML을 별도로 생성하는 함수 (스타일 일관성 유지)
+// PDF 생성용 HTML을 별도로 생성하는 함수
 function generateQuestionsHTMLForPDF() {
   const questions = roleSelectedQuestions[selectedRole] || [];
   const today = new Date().toLocaleDateString();
 
-  let html = `<div style="font-family: 'Noto Sans KR', sans-serif;">`; // 전체 컨테이너에 폰트 적용
+  let html = `<div style="font-family: 'Noto Sans KR', sans-serif;">`;
   html += `<h1 style="color: #3f51b5; font-size: 24px; margin-bottom: 20px; font-weight: 700;">${selectedRole} 역할을 위한 인터뷰 질문</h1>`;
   html += `<p style="font-size: 14px; margin-bottom: 20px;">생성 날짜: ${today}</p>`;
 
