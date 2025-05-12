@@ -311,9 +311,217 @@ function removeSelectedQuestion(question) {
   updateSelectedQuestionsUI();
 }
 
-// 알림 표시
 function showNotification(message, isError = false) {
   const notification = document.getElementById('notification');
   notification.textContent = message;
   notification.style.backgroundColor = isError ? '#F44336' : '#323232';
-  notification.style
+  notification.style.display = 'block';
+  
+  setTimeout(() => {
+    notification.style.display = 'none';
+  }, 3000);
+}
+
+// 선택된 질문 저장 함수 (localStorage 사용)
+function saveSelectedQuestions() {
+  try {
+    // localStorage에 저장
+    localStorage.setItem('roleSelectedQuestions', JSON.stringify(roleSelectedQuestions));
+    localStorage.setItem('lastSelectedRole', selectedRole);
+    showNotification('질문이 저장되었습니다!');
+    return true;
+  } catch(error) {
+    console.error('저장 오류:', error);
+    showNotification('저장 중 오류가 발생했습니다: ' + error.message, true);
+    return false;
+  }
+}
+
+// 저장된 질문 불러오기
+function loadSavedQuestions(showAlert = true) {
+  try {
+    const savedQuestions = localStorage.getItem('roleSelectedQuestions');
+    const savedRole = localStorage.getItem('lastSelectedRole');
+    
+    if (savedQuestions) {
+      roleSelectedQuestions = JSON.parse(savedQuestions);
+      
+      if (showAlert) {
+        showNotification('저장된 질문을 불러왔습니다.');
+      }
+      
+      // 저장된 역할이 있으면 해당 역할 선택
+      if (savedRole) {
+        selectRole(savedRole);
+      }
+      
+      return true;
+    } else {
+      if (showAlert) {
+        showNotification('저장된 질문이 없습니다.', true);
+      }
+      return false;
+    }
+  } catch(error) {
+    console.error('불러오기 오류:', error);
+    if (showAlert) {
+      showNotification('불러오기 중 오류가 발생했습니다: ' + error.message, true);
+    }
+    return false;
+  }
+}
+
+// 질문을 JSON 파일로 내보내기
+function exportQuestionsAsJSON() {
+  if (!selectedRole) {
+    showNotification('먼저 역할을 선택해주세요.', true);
+    return;
+  }
+  
+  const selectedQuestionsData = {
+    role: selectedRole,
+    questions: roleSelectedQuestions[selectedRole],
+    timestamp: new Date().toLocaleString()
+  };
+  
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(selectedQuestionsData, null, 2));
+  const downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", selectedRole + "_질문_" + new Date().toISOString().slice(0,10) + ".json");
+  document.body.appendChild(downloadAnchorNode);
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+  
+  showNotification('JSON 파일이 다운로드되었습니다.');
+}
+
+// 인쇄 준비 및 실행 함수
+function prepareAndPrint() {
+  if (!selectedRole) {
+    showNotification('먼저 역할을 선택해주세요.', true);
+    return;
+  }
+  
+  // 현재 UI 상태 저장
+  const mainCard = document.querySelector('.main-card');
+  const originalContent = mainCard.innerHTML;
+  
+  // 인쇄용 내용으로 변경
+  mainCard.innerHTML = generatePrintContent();
+  
+  // 인쇄 다이얼로그 열기
+  window.print();
+  
+  // 원래 UI로 복원 (setTimeout으로 인쇄 다이얼로그 후에 실행)
+  setTimeout(() => {
+    mainCard.innerHTML = originalContent;
+    
+    // 이벤트 리스너 재등록
+    document.querySelectorAll('.role-card').forEach(card => {
+      card.addEventListener('click', function() {
+        selectRole(this.getAttribute('data-role'));
+      });
+    });
+    
+    // 버튼 이벤트 리스너 재등록
+    document.getElementById('saveBtn').addEventListener('click', saveSelectedQuestions);
+    document.getElementById('loadBtn').addEventListener('click', loadSavedQuestions);
+    document.getElementById('exportBtn').addEventListener('click', exportQuestionsAsJSON);
+    document.getElementById('printBtn').addEventListener('click', prepareAndPrint);
+    document.getElementById('pdfBtn').addEventListener('click', generatePDF);
+    
+    // 현재 역할 다시 선택
+    if (selectedRole) {
+      document.querySelector(`.role-card[data-role="${selectedRole}"]`).classList.add('selected');
+      document.getElementById('questions-container').style.display = 'block';
+      document.getElementById('help-text').style.display = 'none';
+      document.getElementById('role-title').textContent = `${selectedRole} 역할의 질문 목록`;
+      updateSelectedQuestionsUI();
+    }
+  }, 500);
+}
+
+// 인쇄용 HTML 생성
+function generatePrintContent() {
+  if (!selectedRole) {
+    return '<p>선택된 역할이 없습니다.</p>';
+  }
+  
+  let content = `
+    <div class="print-header">
+      <h1>${selectedRole} 역할을 위한 인터뷰 질문</h1>
+      <p>생성 날짜: ${new Date().toLocaleDateString()}</p>
+    </div>
+  `;
+  
+  const questions = roleSelectedQuestions[selectedRole];
+  if (questions.length === 0) {
+    content += '<p>선택된 질문이 없습니다.</p>';
+  } else {
+    content += '<ul class="print-questions">';
+    questions.forEach(question => {
+      content += `<li>${question}</li>`;
+    });
+    content += '</ul>';
+  }
+  
+  return content;
+}
+
+// PDF 생성 함수 (jsPDF 사용)
+function generatePDF() {
+  if (!selectedRole) {
+    showNotification('먼저 역할을 선택해주세요.', true);
+    return;
+  }
+  
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // 한글 폰트 지원을 위한 설정
+    doc.setFont("helvetica");
+    
+    // 제목 추가
+    doc.setFontSize(18);
+    doc.text(`${selectedRole} 역할을 위한 인터뷰 질문`, 20, 20);
+    
+    // 생성 날짜 추가
+    doc.setFontSize(12);
+    doc.text(`생성 날짜: ${new Date().toLocaleDateString()}`, 20, 30);
+    
+    const questions = roleSelectedQuestions[selectedRole];
+    
+    if (questions.length === 0) {
+      doc.text("선택된 질문이 없습니다.", 20, 40);
+    } else {
+      let y = 40;
+      
+      questions.forEach((question, index) => {
+        // 페이지 넘김 처리
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        
+        // 질문 번호와 내용
+        const questionText = `${index + 1}. ${question}`;
+        
+        // 텍스트가 페이지 너비를 벗어나지 않도록 줄바꿈 처리
+        const textLines = doc.splitTextToSize(questionText, 170);
+        doc.text(textLines, 20, y);
+        
+        // 다음 질문을 위한 위치 조정 (텍스트 높이에 따라)
+        y += 10 * textLines.length;
+      });
+    }
+    
+    // PDF 저장
+    doc.save(`${selectedRole}_인터뷰_질문.pdf`);
+    showNotification('PDF 파일이 생성되었습니다.');
+    
+  } catch (error) {
+    console.error('PDF 생성 오류:', error);
+    showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, true);
+  }
+}
