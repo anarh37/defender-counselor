@@ -159,7 +159,7 @@ function selectRole(role) {
   updateSelectedQuestionsUI();
 }
 
-// 질문 표시 함수 - 수정된 버전
+// 질문 표시 함수 - 완전히 새로 작성된 버전
 function displayQuestions(role) {
   console.log('질문 표시 함수 호출됨:', role);
 
@@ -175,13 +175,11 @@ function displayQuestions(role) {
 
   let allQuestionsArray = [];
 
-  // questionsData는 배열의 배열이므로 인덱스로 순회해야 함
+  // 모든 카테고리의 질문들을 추가
   for (let categoryIndex = 0; categoryIndex < questionsData.length; categoryIndex++) {
     const categoryQuestions = questionsData[categoryIndex];
     
-    // 카테고리 헤더 제거 - 이 부분을 삭제했습니다
-    
-    // 각 질문 항목 생성
+    // 각 질문 항목 생성 - 카테고리 헤더 없이 직접 질문 추가
     for (let i = 0; i < categoryQuestions.length; i++) {
       const question = categoryQuestions[i];
       allQuestionsArray.push(question);
@@ -210,29 +208,6 @@ function displayQuestions(role) {
     noQuestions.textContent = '이 역할에 대한 질문이 없습니다.';
     questionsList.appendChild(noQuestions);
   }
-}
-
-// 질문 선택 토글 함수
-function toggleQuestionSelection(questionElement) {
-  const question = questionElement.dataset.question;
-
-  if (!roleSelectedQuestions[selectedRole]) {
-      roleSelectedQuestions[selectedRole] = [];
-  }
-
-  if (questionElement.classList.contains('selected')) {
-    questionElement.classList.remove('selected');
-    const index = roleSelectedQuestions[selectedRole].indexOf(question);
-    if (index > -1) {
-      roleSelectedQuestions[selectedRole].splice(index, 1);
-    }
-  } else {
-    questionElement.classList.add('selected');
-    if (!roleSelectedQuestions[selectedRole].includes(question)) {
-      roleSelectedQuestions[selectedRole].push(question);
-    }
-  }
-  updateSelectedQuestionsUI();
 }
 
 // 선택된 질문 UI 업데이트
