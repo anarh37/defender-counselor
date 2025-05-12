@@ -468,7 +468,7 @@ function generatePrintContent() {
   return content;
 }
 
-// PDF 생성 함수 (jsPDF 사용)
+// PDF 생성 함수 (HTML2Canvas와 jsPDF 사용)
 function generatePDF() {
   if (!selectedRole) {
     showNotification('먼저 역할을 선택해주세요.', true);
@@ -476,52 +476,83 @@ function generatePDF() {
   }
   
   try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    // 인쇄용 임시 컨테이너 생성
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '0';
+    tempContainer.style.width = '800px'; // 고정 너비 지정
+    tempContainer.style.fontFamily = "'Noto Sans KR', sans-serif";
     
-    // 한글 폰트 지원을 위한 설정
-    doc.setFont("helvetica");
+    // 인쇄할 내용 생성
+    tempContainer.innerHTML = `
+      <div style="padding: 20px; font-family: 'Noto Sans KR', sans-serif;">
+        <h1 style="color: #3f51b5; font-size: 24px; margin-bottom: 20px;">${selectedRole} 역할을 위한 인터뷰 질문</h1>
+        <p style="font-size: 14px; margin-bottom: 20px;">생성 날짜: ${new Date().toLocaleDateString()}</p>
+        <div id="pdf-content">
+          ${generateQuestionsHTML()}
+        </div>
+      </div>
+    `;
     
-    // 제목 추가
-    doc.setFontSize(18);
-    doc.text(`${selectedRole} 역할을 위한 인터뷰 질문`, 20, 20);
+    document.body.appendChild(tempContainer);
     
-    // 생성 날짜 추가
-    doc.setFontSize(12);
-    doc.text(`생성 날짜: ${new Date().toLocaleDateString()}`, 20, 30);
-    
-    const questions = roleSelectedQuestions[selectedRole];
-    
-    if (questions.length === 0) {
-      doc.text("선택된 질문이 없습니다.", 20, 40);
-    } else {
-      let y = 40;
+    // HTML2Canvas로 HTML을 이미지로 변환
+    html2canvas(tempContainer, {
+      scale: 2, // 고해상도
+      useCORS: true,
+      logging: false
+    }).then(canvas => {
+      // jsPDF 초기화
+      const pdf = new jsPDF('p', 'mm', 'a4');
       
-      questions.forEach((question, index) => {
-        // 페이지 넘김 처리
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-        
-        // 질문 번호와 내용
-        const questionText = `${index + 1}. ${question}`;
-        
-        // 텍스트가 페이지 너비를 벗어나지 않도록 줄바꿈 처리
-        const textLines = doc.splitTextToSize(questionText, 170);
-        doc.text(textLines, 20, y);
-        
-        // 다음 질문을 위한 위치 조정 (텍스트 높이에 따라)
-        y += 10 * textLines.length;
-      });
-    }
-    
-    // PDF 저장
-    doc.save(`${selectedRole}_인터뷰_질문.pdf`);
-    showNotification('PDF 파일이 생성되었습니다.');
-    
+      // Canvas를 이미지로 변환하여 PDF에 추가
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 210; // A4 너비
+      const pageHeight = 295; // A4 높이
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      // 첫 페이지 추가
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      // 추가 페이지가 필요한 경우
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      // PDF 저장
+      pdf.save(`${selectedRole}_인터뷰_질문.pdf`);
+      
+      // 임시 컨테이너 제거
+      document.body.removeChild(tempContainer);
+      
+      showNotification('PDF 파일이 생성되었습니다.');
+    });
   } catch (error) {
     console.error('PDF 생성 오류:', error);
     showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, true);
   }
+}
+
+// 질문 목록을 HTML 형태로 생성하는 함수
+function generateQuestionsHTML() {
+  const questions = roleSelectedQuestions[selectedRole];
+  
+  if (questions.length === 0) {
+    return '<p style="font-size: 16px; color: #666;">선택된 질문이 없습니다.</p>';
+  }
+  
+  let html = '<ul style="padding-left: 20px;">';
+  questions.forEach((question, index) => {
+    html += `<li style="margin-bottom: 10px; font-size: 16px;">${question}</li>`;
+  });
+  html += '</ul>';
+  
+  return html;
 }
