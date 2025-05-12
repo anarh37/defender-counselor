@@ -1,44 +1,59 @@
+/* 기본 스타일 */
 body {
   font-family: 'Noto Sans KR', sans-serif;
   margin: 0;
   padding: 20px;
   background-color: #f5f5f5;
+  min-width: 1000px; /* 최소 너비 설정 */
+  overflow-x: auto; /* 가로 스크롤 허용 */
 }
+
 .main-card {
   width: 95%;
   max-width: 1200px;
+  min-width: 900px; /* 최소 너비 설정 */
   margin: 0 auto;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   padding: 20px;
 }
+
 .header {
   text-align: center;
   margin-bottom: 30px;
   color: #3f51b5;
 }
+
+.header h1 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
 .highlight {
   font-weight: bold;
   color: #4CAF50; /* 방어자 색상과 일치하는 초록색 */
 }
+
 .subtitle {
-  font-size: 20px; /* 이전보다 크기 증가 */
+  font-size: 18px;
   text-align: center;
   margin: 15px 0;
   padding: 10px;
   color: #333;
 }
+
 .role-selector {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* 줄바꿈 방지 */
   gap: 15px;
   margin-bottom: 30px;
 }
+
 .role-card {
   width: 220px;
-  height: 100px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,37 +63,78 @@ body {
   font-size: 18px;
   font-weight: bold;
   color: white;
+  flex-shrink: 0; /* 크기 축소 방지 */
 }
+
 .role-card.selected {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
+
 .role-card[data-role="피해자"] {
   background-color: #F44336;
 }
+
 .role-card[data-role="방관자"] {
   background-color: #FF9800;
 }
+
 .role-card[data-role="가해자"] {
   background-color: #673AB7;
 }
+
 .role-card[data-role="방어자"] {
   background-color: #4CAF50;
 }
+
 .questions-container {
   display: none;
 }
+
+#role-title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
+}
+
 .questions-wrapper {
   display: flex;
-  flex-direction: row;
+  flex-direction: row !important; /* 항상 가로 방향 유지 */
   gap: 20px;
 }
+
 .questions-column {
   flex: 1;
+  min-width: 45%; /* 최소 너비 설정 */
 }
+
+.questions-column h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected-count {
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
 .question-list {
   margin-top: 20px;
 }
+
 .question-item {
   padding: 12px 16px;
   margin-bottom: 10px;
@@ -89,22 +145,27 @@ body {
   cursor: pointer;
   transition: background-color 0.2s;
 }
+
 .question-item:hover {
   background-color: #e0e0e0;
 }
+
 .question-item.selected {
   background-color: #e3f2fd;
   border-left: 4px solid #2196F3;
 }
+
 .selected-questions {
   margin-top: 20px;
 }
+
 .selected-question-list {
   background-color: #e8f5e9;
   padding: 15px;
   border-radius: 8px;
   min-height: 50px;
 }
+
 .selected-item {
   display: flex;
   align-items: center;
@@ -114,16 +175,19 @@ body {
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
+
 .selected-item i {
   margin-right: 8px;
   color: #F44336;
   cursor: pointer;
 }
+
 .help-text {
   text-align: center;
   margin: 30px 0;
   color: #666;
 }
+
 .notification {
   position: fixed;
   bottom: 20px;
@@ -137,153 +201,149 @@ body {
   z-index: 1000;
   display: none;
 }
+
 .button-container {
   margin-top: 30px;
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
   gap: 15px;
 }
+
+.button-container button {
+  padding: 10px 20px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.button-container button:hover {
+  background-color: #303f9f;
+}
+
+.button-container button:active {
+  transform: translateY(1px);
+}
+
+.button-container button:focus {
+  outline: none;
+}
+
+#saveBtn {
+  background-color: #4CAF50;
+}
+
+#saveBtn:hover {
+  background-color: #388E3C;
+}
+
+#loadBtn {
+  background-color: #FF9800;
+}
+
+#loadBtn:hover {
+  background-color: #F57C00;
+}
+
+#printBtn {
+  background-color: #9C27B0;
+}
+
+#printBtn:hover {
+  background-color: #7B1FA2;
+}
+
+#pdfBtn {
+  background-color: #F44336;
+}
+
+#pdfBtn:hover {
+  background-color: #D32F2F;
+}
+
+/* 인쇄 관련 스타일 */
 @media print {
   body {
     background-color: white;
+    min-width: auto;
+    overflow-x: visible;
   }
+  
   .main-card {
     box-shadow: none;
     width: 100%;
     margin: 0;
     padding: 0;
+    min-width: auto;
   }
+  
   .role-selector, .questions-wrapper, .button-container, #help-text {
     display: none !important;
   }
+  
   .print-header {
     text-align: center;
     margin-bottom: 30px;
   }
+  
   .print-questions li {
     margin-bottom: 10px;
   }
 }
 
-/* 모바일 최적화를 위한 미디어 쿼리 개선 */
+/* 모바일에서도 PC 레이아웃 유지 (모바일 최적화 미디어 쿼리를 무력화) */
 @media (max-width: 768px) {
   body {
     padding: 10px;
+    min-width: 1000px !important;
+    overflow-x: auto !important;
   }
   
   .main-card {
-    width: 100%;
-    padding: 15px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    min-width: 900px !important;
+    width: 95% !important;
+    padding: 20px !important;
   }
-
+  
   .header h1 {
-    font-size: 22px;
-    margin-bottom: 10px;
+    font-size: 28px !important;
   }
   
   .subtitle {
-    font-size: 16px;
-    margin: 10px 0;
-    padding: 5px;
+    font-size: 18px !important;
   }
   
   .role-selector {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
   }
   
   .role-card {
-    width: calc(50% - 5px);
-    height: 70px;
-    font-size: 16px;
-    margin: 0;
+    width: 220px !important;
+    height: 80px !important;
+    font-size: 18px !important;
   }
   
   .questions-wrapper {
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: row !important;
   }
   
   .questions-column {
-    width: 100%;
-  }
-  
-  .questions-column h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  
-  .question-item {
-    padding: 10px 12px;
-    font-size: 15px;
-    margin-bottom: 8px;
-  }
-  
-  .selected-item {
-    padding: 8px 10px;
-    font-size: 15px;
+    width: auto !important;
+    flex: 1 !important;
   }
   
   .button-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
   }
   
   .button-container button {
-    width: 100%;
-    margin: 5px 0;
-    font-size: 14px;
-    padding: 8px 0;
-  }
-  
-  /* 모바일에서 터치 영역 개선 */
-  .question-item, .selected-item i {
-    min-height: 44px; /* 터치 영역 최소 44px 권장 */
-  }
-  
-  /* 모바일에서 선택된 상태 더 명확하게 */
-  .question-item.selected {
-    background-color: #e3f2fd;
-    border-left: 6px solid #2196F3;
-    font-weight: 500;
-  }
-  
-  /* 질문 목록과 선택된 질문 영역 간격 늘리기 */
-  #questions-container {
-    margin-top: 15px;
-  }
-  
-  /* 알림 메시지 크기 조정 */
-  .notification {
-    width: 90%;
-    padding: 12px 15px;
-    font-size: 14px;
-  }
-}
-
-/* 작은 모바일 화면용 추가 조정 */
-@media (max-width: 480px) {
-  .role-card {
-    width: 100%;
-    height: 60px;
-    margin-bottom: 8px;
-  }
-  
-  .button-container button {
-    padding: 10px 0;
-  }
-  
-  .questions-column h3 {
-    font-size: 16px;
-  }
-  
-  .selected-count {
-    font-size: 16px;
+    width: auto !important;
+    padding: 10px 20px !important;
   }
 }
