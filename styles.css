@@ -4,7 +4,6 @@ body {
   padding: 20px;
   background-color: #f5f5f5;
 }
-
 .main-card {
   width: 95%;
   max-width: 1200px;
@@ -14,18 +13,15 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   padding: 20px;
 }
-
 .header {
   text-align: center;
   margin-bottom: 30px;
   color: #3f51b5;
 }
-
 .highlight {
   font-weight: bold;
   color: #4CAF50; /* 방어자 색상과 일치하는 초록색 */
 }
-
 .subtitle {
   font-size: 20px; /* 이전보다 크기 증가 */
   text-align: center;
@@ -33,7 +29,6 @@ body {
   padding: 10px;
   color: #333;
 }
-
 .role-selector {
   display: flex;
   justify-content: center;
@@ -41,7 +36,6 @@ body {
   gap: 15px;
   margin-bottom: 30px;
 }
-
 .role-card {
   width: 220px;
   height: 100px;
@@ -55,46 +49,36 @@ body {
   font-weight: bold;
   color: white;
 }
-
 .role-card.selected {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
-
 .role-card[data-role="피해자"] {
   background-color: #F44336;
 }
-
 .role-card[data-role="방관자"] {
   background-color: #FF9800;
 }
-
 .role-card[data-role="가해자"] {
   background-color: #673AB7;
 }
-
 .role-card[data-role="방어자"] {
   background-color: #4CAF50;
 }
-
 .questions-container {
   display: none;
 }
-
 .questions-wrapper {
   display: flex;
   flex-direction: row;
   gap: 20px;
 }
-
 .questions-column {
   flex: 1;
 }
-
 .question-list {
   margin-top: 20px;
 }
-
 .question-item {
   padding: 12px 16px;
   margin-bottom: 10px;
@@ -105,27 +89,22 @@ body {
   cursor: pointer;
   transition: background-color 0.2s;
 }
-
 .question-item:hover {
   background-color: #e0e0e0;
 }
-
 .question-item.selected {
   background-color: #e3f2fd;
   border-left: 4px solid #2196F3;
 }
-
 .selected-questions {
   margin-top: 20px;
 }
-
 .selected-question-list {
   background-color: #e8f5e9;
   padding: 15px;
   border-radius: 8px;
   min-height: 50px;
 }
-
 .selected-item {
   display: flex;
   align-items: center;
@@ -135,19 +114,16 @@ body {
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-
 .selected-item i {
   margin-right: 8px;
   color: #F44336;
   cursor: pointer;
 }
-
 .help-text {
   text-align: center;
   margin: 30px 0;
   color: #666;
 }
-
 .notification {
   position: fixed;
   bottom: 20px;
@@ -161,7 +137,6 @@ body {
   z-index: 1000;
   display: none;
 }
-
 .button-container {
   margin-top: 30px;
   display: flex;
@@ -169,7 +144,6 @@ body {
   flex-wrap: wrap;
   gap: 15px;
 }
-
 @media print {
   body {
     background-color: white;
@@ -192,26 +166,124 @@ body {
   }
 }
 
+/* 모바일 최적화를 위한 미디어 쿼리 개선 */
 @media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  
+  .main-card {
+    width: 100%;
+    padding: 15px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+  }
+
+  .header h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+    margin: 10px 0;
+    padding: 5px;
+  }
+  
   .role-selector {
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
   }
   
   .role-card {
-    width: 80%;
+    width: calc(50% - 5px);
+    height: 70px;
+    font-size: 16px;
+    margin: 0;
   }
   
   .questions-wrapper {
     flex-direction: column;
+    gap: 15px;
+  }
+  
+  .questions-column {
+    width: 100%;
+  }
+  
+  .questions-column h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .question-item {
+    padding: 10px 12px;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  
+  .selected-item {
+    padding: 8px 10px;
+    font-size: 15px;
   }
   
   .button-container {
     flex-direction: column;
     align-items: center;
+    gap: 10px;
+    margin-top: 20px;
   }
   
   .button-container button {
-    width: 80%;
+    width: 100%;
+    margin: 5px 0;
+    font-size: 14px;
+    padding: 8px 0;
+  }
+  
+  /* 모바일에서 터치 영역 개선 */
+  .question-item, .selected-item i {
+    min-height: 44px; /* 터치 영역 최소 44px 권장 */
+  }
+  
+  /* 모바일에서 선택된 상태 더 명확하게 */
+  .question-item.selected {
+    background-color: #e3f2fd;
+    border-left: 6px solid #2196F3;
+    font-weight: 500;
+  }
+  
+  /* 질문 목록과 선택된 질문 영역 간격 늘리기 */
+  #questions-container {
+    margin-top: 15px;
+  }
+  
+  /* 알림 메시지 크기 조정 */
+  .notification {
+    width: 90%;
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+}
+
+/* 작은 모바일 화면용 추가 조정 */
+@media (max-width: 480px) {
+  .role-card {
+    width: 100%;
+    height: 60px;
+    margin-bottom: 8px;
+  }
+  
+  .button-container button {
+    padding: 10px 0;
+  }
+  
+  .questions-column h3 {
+    font-size: 16px;
+  }
+  
+  .selected-count {
+    font-size: 16px;
   }
 }
