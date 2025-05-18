@@ -487,7 +487,7 @@ function generatePDF() {
   }
 }
 
-// PDF 문서 정의 생성 함수
+// PDF 문서 정의 생성 함수 - 페이지 나눔 제거 버전
 function createPDFDocDefinition() {
   const today = new Date().toLocaleDateString();
   const roles = ["피해자", "방관자", "가해자", "방어자"];
@@ -531,12 +531,13 @@ function createPDFDocDefinition() {
   for (const role of roles) {
     const questions = roleSelectedQuestions[role] || [];
     
-    // 역할 섹션 제목
+    // 역할 섹션 제목 - pageBreak 속성 제거
     content.push({
       text: `${role} 역할의 질문`,
       style: 'roleHeader',
       color: roleColors[role],
-      pageBreak: role !== "피해자" ? 'before' : null
+      // pageBreak 속성 제거됨
+      margin: [0, 15, 0, 5] // 여백 추가로 구분감 유지
     });
     
     // 구분선 추가
@@ -556,7 +557,7 @@ function createPDFDocDefinition() {
         text: '선택된 질문이 없습니다.',
         fontSize: 12,
         color: '#666666',
-        margin: [5, 0, 0, 20]
+        margin: [5, 0, 0, 15]
       });
     } else {
       anyQuestionsSelected = true;
@@ -566,13 +567,13 @@ function createPDFDocDefinition() {
       questions.forEach(question => {
         questionItems.push({
           text: question,
-          margin: [0, 0, 0, 8]
+          margin: [0, 0, 0, 6]
         });
       });
       
       content.push({
         ul: questionItems,
-        margin: [0, 10, 0, 20]
+        margin: [0, 10, 0, 15]
       });
     }
   }
@@ -603,9 +604,33 @@ function createPDFDocDefinition() {
       roleHeader: {
         fontSize: 16,
         bold: true,
-        margin: [0, 10, 0, 5]
+        margin: [0, 15, 0, 5]
       }
     },
     pageMargins: [40, 40, 40, 40]
   };
+}
+
+// PDF 생성 함수는 동일하게 유지
+function generatePDF() {
+  showNotification('모든 역할의 선택된 질문이 포함된 PDF를 생성 중입니다... 잠시 기다려주세요.');
+
+  try {
+    // PDF 문서 정의
+    const docDefinition = createPDFDocDefinition();
+
+    // PDF 생성 및 다운로드
+    pdfMake.fonts = {
+      NotoSans: {
+        normal: 'https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@main/Sans/OTF/Korean/NotoSansCJKkr-Regular.otf',
+        bold: 'https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@main/Sans/OTF/Korean/NotoSansCJKkr-Bold.otf'
+      }
+    };
+
+    pdfMake.createPdf(docDefinition).download(`방어자상담소_인터뷰_질문_모음_${new Date().toISOString().slice(0,10)}.pdf`);
+    showNotification('PDF 파일이 생성되었습니다.');
+  } catch (error) {
+    console.error('PDF 생성 오류:', error);
+    showNotification('PDF 생성 중 오류가 발생했습니다: ' + error.message, true);
+  }
 }
