@@ -53,17 +53,32 @@ body {
 
 .role-card {
   width: 220px;
-  height: 80px;
+  height: 150px; /* 높이 증가 */
   display: flex;
+  flex-direction: column; /* 세로 방향으로 변경 */
   align-items: center;
   justify-content: center;
   cursor: pointer;
   border-radius: 8px;
   transition: all 0.3s;
-  font-size: 18px;
-  font-weight: bold;
   color: white;
   flex-shrink: 0; /* 크기 축소 방지 */
+  padding: 10px;
+  box-sizing: border-box;
+}
+.role-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 3px solid rgba(255, 255, 255, 0.7);
+}
+
+.role-card .role-name {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
 }
 
 .role-card.selected {
