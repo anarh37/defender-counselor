@@ -53,9 +53,9 @@ body {
 
 .role-card {
   width: 220px;
-  height: 150px; /* 높이 증가 */
+  height: 100px; /* 이미지 제거로 높이 조정 */
   display: flex;
-  flex-direction: column; /* 세로 방향으로 변경 */
+  /* flex-direction: column; 텍스트만 있으므로 불필요 */
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -66,6 +66,8 @@ body {
   padding: 10px;
   box-sizing: border-box;
 }
+
+/* --- 이미지 스타일 제거 ---
 .role-card img {
   width: 80px;
   height: 80px;
@@ -74,9 +76,10 @@ body {
   margin-bottom: 10px;
   border: 3px solid rgba(255, 255, 255, 0.7);
 }
+*/
 
 .role-card .role-name {
-  font-size: 18px;
+  font-size: 24px; /* 텍스트만 있으므로 폰트 크기 증가 */
   font-weight: bold;
   text-align: center;
 }
@@ -339,8 +342,8 @@ body {
   
   .role-card {
     width: 220px !important;
-    height: 80px !important;
-    font-size: 18px !important;
+    height: 100px !important; /* 수정한 높이와 폰트 크기 적용 */
+    font-size: 24px !important;
   }
   
   .questions-wrapper {
@@ -362,3 +365,4 @@ body {
     padding: 10px 20px !important;
   }
 }
+
